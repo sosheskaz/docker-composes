@@ -1,0 +1,31 @@
+version: '3.5'
+
+# This starts an instance of portainer on your machine.
+# You need to set a password first with:
+#   printf "your_password" | docker secret create portainer_pass
+
+services:
+  portainer:
+    image: portainer/portainer:latest
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 64M
+    secrets:
+      - portainer_pass
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainerdata:/data
+    ports:
+      - 9000:9000
+    command: --admin-password-file /run/secrets/portainer_pass -H unix:///var/run/docker.sock
+
+volumes:
+  portainerdata:
+    driver: local
+
+secrets:
+  portainer_pass:
+    external: true
